@@ -35,7 +35,10 @@ class ReplayBuffer(object):
 
     def create_new_episode(self):
         """ add a check step, in case the game is end without done """
-        if self._storage.__len__() > 0 and self._storage[self._now_idx][-1][-1] != True:
+
+
+
+        if self._storage.__len__() > 0 and self._storage[self._now_idx][-1][-1].all() != True:
             self._storage[self._now_idx].clear()
             return # end without add new memor
 

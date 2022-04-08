@@ -5,7 +5,7 @@ from maac1.actor_critic_categorical import Actor, Critic
 import numpy as np
 import torch.nn as nn
 import random
-from common.replay_buffer import Memory
+from common.replay_buffer_ppo import Memory
 random.seed(5)
 # print(random.random())
 #from .distribution import BaseAgent
@@ -18,7 +18,11 @@ if torch.cuda.is_available():
 else:
     device = torch.device("cpu")
     print("Running on the CPU")
-class MAAC:
+
+gamma = 0.98
+lmbda = 0.95
+eps_clip = 0.1
+class PPO:
     def __init__(self, args,seed):  # 因为不同的agent的obs、act维度可能不一样，所以神经网络不同,需要agent_id来区分
         self.args=args
         self.agent_num = args.n_agents
@@ -99,18 +103,25 @@ class MAAC:
 
         actions = []
 
+
         for i in range(self.agent_num):
             dist = self.actors[i](observations[i])
             #print('dist',dist)
             action = Categorical(dist).sample()
+
+            #pi_action = dist[action.item()].item()
+            #print('@@@@@',pi_action)
+
             #print('action is',action)
 
             self.memory.pi[i].append(dist)
 
             actions.append(action.item())
+            #pi_a.append(pi_action)
 
         self.memory.observations.append(observations)
         self.memory.actions.append(actions)
+        #self.memory.pi_a.append(pi_a)
 
         return actions
     def train(self):
@@ -118,37 +129,28 @@ class MAAC:
         actor_optimizer = self.actors_optimizer
         critic_optimizer = self.critic_optimizer
 
-        actions, observations, pi, reward, done = self.memory.get()
+        actions, observations, pi,  reward, done = self.memory.get()
         # print('obs_train',observations)
-        #print('actions_memory',actions)
-        # print('pi is',pi)
 
         for i in range(self.agent_num):
             # train actor
             #print('action1',actions)
-
             input_critic = self.build_input_critic(i, observations,actions).to(device)
             Q_target = self.critic_target(input_critic).detach()
-
-
             action_taken = actions.type(torch.long)[:, i].reshape(-1, 1)
+            #pi_a_taken = pi_a.type(torch.long)[:, i].reshape(-1, 1)
 
-
-            baseline = torch.sum(pi[i] * Q_target.to(device), dim=1).detach()
+            #baseline = torch.sum(pi[i] * Q_target.to(device), dim=1).detach()
 
             Q_taken_target = torch.gather(Q_target.to(device), dim=1, index=action_taken.to(device)).squeeze()
             # print('Q_taken_target',Q_taken_target)
-            advantage = Q_taken_target-baseline
+            #advantage = Q_taken_target-baseline
 
 
-            log_pi = torch.log(torch.gather(pi[i].to(device), dim=1, index=action_taken.to(device)).squeeze())
 
-            actor_loss = - torch.mean(advantage * log_pi).to(device)
+            #actor_loss = - torch.mean(advantage * log_pi).to(device)
 
-            actor_optimizer[i].zero_grad()
-            actor_loss.backward()
-            torch.nn.utils.clip_grad_norm_(self.actors[i].parameters(), 5)
-            actor_optimizer[i].step()
+            #
 
             # train critic
 
@@ -181,6 +183,45 @@ class MAAC:
             critic_loss.backward()
             torch.nn.utils.clip_grad_norm_(self.critic.parameters(), 5)
             critic_optimizer.step()
+            #train actor
+            delta = (r - Q_taken).unsqueeze(-1)
+
+            delta = delta.detach().numpy()
+
+            advantage_lst =[]
+            advantage = 0.0
+            for delta_t in delta[::-1]:
+                advantage = gamma * lmbda * advantage + delta_t[0]
+                # print('advantage1',advantage)
+                advantage_lst.append([advantage])
+            advantage_lst.reverse()
+
+            advantage = torch.tensor(advantage_lst, dtype=torch.float) #torch.Size([631, 1])
+
+            log_pi = torch.log(torch.gather(pi[i].to(device), dim=1, index=action_taken.to(device)).squeeze()).detach()
+
+            #calculate pi_new
+            batch_size = len(observations)
+            observations1 = torch.cat(observations).view(batch_size,self.agent_num, self.state_dim).to(device) #torch.Size([647, 56])
+            #print('observations[:,i]',observations[:,i].size())
+            pi_new = self.actors[i](observations1[:,i])
+            #print('pi_new',pi_new.size())
+            pi_new_a = torch.gather(pi_new.to(device), dim=1, index=action_taken.to(device)).squeeze()
+
+            ratio =  torch.exp(torch.log(pi_new_a)-log_pi)  # a/b == exp(log(a)-log(b))
+
+            #print('ratio is',ratio)
+            surr1 = ratio * advantage.squeeze(-1)
+            surr2 = torch.clamp(ratio, 1 - eps_clip, 1 + eps_clip) * advantage.squeeze(-1)
+            actor_loss = -torch.min(surr1, surr2).mean()
+            actor_optimizer[i].zero_grad()
+            actor_loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.actors[i].parameters(), 5)
+            actor_optimizer[i].step()
+
+
+
+
 
         if self.count == self.target_update_steps:
             # print('+++++++')

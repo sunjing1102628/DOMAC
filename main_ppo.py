@@ -8,7 +8,7 @@ import gym
 import ma_gym
 import matplotlib.pyplot as plt
 import numpy as np
-from maac1.maac_categorical import MAAC
+from maac1.ppo import PPO
 from common.replay_buffer import Memory
 import torch
 import random
@@ -37,7 +37,7 @@ if __name__ == "__main__":
         # agent initialisation
         start = time.time()
 
-        agents = MAAC(args,seed)
+        agents = PPO(args,seed)
         memory = Memory(args.n_agents, args.action_dim,seed)
         env = gym.make("PredatorPrey5x5-v0")
         # env = gym.make("PredatorPrey7x7-v0")
