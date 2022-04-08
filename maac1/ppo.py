@@ -198,7 +198,7 @@ class PPO:
 
             advantage = torch.tensor(advantage_lst, dtype=torch.float) #torch.Size([631, 1])
 
-            log_pi = torch.log(torch.gather(pi[i].to(device), dim=1, index=action_taken.to(device)).squeeze()).detach()
+            log_pi = torch.log(torch.gather(pi[i].to(device), dim=1, index=action_taken.to(device)).squeeze())
 
             #calculate pi_new
             batch_size = len(observations)
@@ -206,7 +206,7 @@ class PPO:
             #print('observations[:,i]',observations[:,i].size())
             pi_new = self.actors[i](observations1[:,i])
             #print('pi_new',pi_new.size())
-            pi_new_a = torch.gather(pi_new.to(device), dim=1, index=action_taken.to(device)).squeeze()
+            pi_new_a = torch.gather(pi_new.to(device), dim=1, index=action_taken.to(device)).squeeze().detach()
 
             ratio =  torch.exp(torch.log(pi_new_a)-log_pi)  # a/b == exp(log(a)-log(b))
 
