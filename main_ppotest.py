@@ -65,7 +65,6 @@ class PPO(nn.Module):
             td_target = r + gamma * self.v(s_prime) * done_mask #torch.Size([15, 1])
             #print('td_target',td_target.size())
             delta = td_target - self.v(s) # torch.Size([20, 1])
-            print('delta1',delta.size())
             delta = delta.detach().numpy()
             #print('delta2',delta)
             advantage_lst = []
