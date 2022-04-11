@@ -1,20 +1,17 @@
 #from runner_1005 import Runner
 from common.arguments import get_args
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import numpy as np
 from common.arguments import get_args
 import gym
 import ma_gym
 import matplotlib.pyplot as plt
 import numpy as np
-from maac1.madac1_opp import MADAC_OPP
+from maac1.DPPO import DPPO
 from common.replay_buffer import Memory
 import torch
 import random
-
-
-# print('random_seed',random.random())
 torch.cuda.is_available()
 if torch.cuda.is_available():
     device = torch.device("cuda:0")  # you can continue going on here, like cuda:1 cuda:2....etc.
@@ -22,42 +19,42 @@ if torch.cuda.is_available():
 else:
     device = torch.device("cpu")
     print("Running on the CPU")
+# random.seed(5)
+# print('random_seed',random.random())
+# num_seeds = 10
+# seeds = [i for i in range(num_seeds)]
 def moving_average(x, N):
     return np.convolve(x, np.ones((N,)) / N, mode='valid')
-# num_seeds = 6
-# seeds = [i for i in range(num_seeds)]
-num_seeds = [2,3,4]
+num_seeds = [2]
 seeds = [i for i in num_seeds]
 print('seeds',seeds)
 import time
 if __name__ == "__main__":
     for seed in seeds:
         args = get_args()
+        # # Hyperparameters
 
         # agent initialisation
         start = time.time()
 
-        agents = MADAC_OPP(args,seed)
-
+        agents = DPPO(args,seed)
         memory = Memory(args.n_agents, args.action_dim,seed)
         #env = gym.make("PredatorPrey5x5-v0")
         env = gym.make("PredatorPrey7x7-v0")
-        opp_agents = args.opp_agents
-       # print('opp_agent', args.opp_agents)
-        opp_sample_num = args.opp_sample_num
-      #  print('self.opp_sample_num', opp_sample_num)
 
         obs = env.reset()
+        #print('obs',obs)
 
         episode_reward = 0
         episodes_reward = []
 
         # training loop
-        lr_madac_opp = 0.04
 
-        n_episodes = 15000
+        n_episodes = 10000
         episode = 0
-        log = []
+        lr_a1 = 0.01
+        log_mean = []
+        log_std=[]
 
         while episode < n_episodes:
             # print('~~~~~')
@@ -94,25 +91,33 @@ if __name__ == "__main__":
                     #log.append([episode, sum(episodes_reward[-10:]) / 10])
 
                 if episode % 100 == 0:
-                    log.append([episode, sum(episodes_reward[-100:]) / 100])
+                    log_mean.append([episode, sum(episodes_reward[-100:]) / 100])
                     print('episodes_reward[-100:]',episodes_reward[-100:])
+                    episode_reward_std= np.array(episodes_reward[-100:]).std()
+                    log_std.append([episode, episode_reward_std])
                     print('type',type(episodes_reward[-100:]))
+                    print('episode_std',episode_reward_std)
                     print(f"episode: {episode}, average reward: {sum(episodes_reward[-100:]) / 100}")
-                '''np.savetxt('./results/final_results54new_1e2_0.95/train_score_seed_{}.csv'.format(seed), np.array(log),
-                           delimiter=";")'''
-
+                np.savetxt('./results/dppo4v2/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
+                           delimiter=";")
+                np.savetxt('./results/dppo4v2/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
+                           delimiter=";")
                 # np.save('./log/training_log_'
-                #     '{}'  # environment parameter
-                #     '{}.npy'  # training parameter
-                #     .format(args.gamma, lr_madac_opp,
-                #             ),
-                #     np.array(log))
-
+                #         '{}'  # environment parameter
+                #         '{}.npy'  # training parameter
+                #         .format(args.gamma, lr_a1,
+                #                 ),
+                #         np.array(log))
+        # plt.plot(moving_average(episodes_reward, 100))
+        # plt.title('Learning curve')
+        # plt.xlabel("Episodes")
+        # plt.ylabel("Reward")
+        # plt.show()
         end = time.time()
         print("Execution time of the program is- ", end - start)
+        # import cProfile
+        #
 
-    # import cProfile
-    #
     # cProfile.run('Runner(args, env)', filename='restates')
     #             #
 

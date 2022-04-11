@@ -41,24 +41,33 @@ class Actor(nn.Module):
 
         opponent_action_num = F.one_hot(opponent_num, num_classes=len(opponent_num))
         # print('opponent_action_num',opponent_action_num)
-        # print('x is',x)
-        # print('len(x)',len(x))
+        #print('x is',x)
+        #print('x.repeat(1, 5).reshape(len(x),5,28)',x.repeat(1, 5).reshape(len(x),5,28))
 
-        a = torch.cat([x.repeat(1, 5).reshape(5,len(x)),
+       # print('x.repeat(1, 5)',opponent_action_num.repeat(1, len(x)).reshape(len(x),5, 5))
+        #print('opponent_action_num',opponent_action_num.repeat(1, len(x)).reshape(5,len(x),5).size())
+        '''a = torch.cat([x.repeat(1, 5).reshape(5, len(x)),
                        opponent_action_num.to(x.device)],
-                      dim=1)
-        # print('a is',a)
+                      dim=1)'''
+
+
+        a = torch.cat([x.repeat(1, 5).reshape(len(x),5,28),
+                       opponent_action_num.repeat(1, len(x)).reshape(len(x),5, 5).to(x.device)],
+                      dim=2).squeeze(1)
+       # print('a is',a.size())
         a = F.relu(self.fc1(a))
 
         a = F.relu(self.fc2(a))
         agent_action_probs= F.softmax(self.fc3(a), dim=-1)
-        # print('agent_action_prob',agent_action_probs)
+       # print('agent_action_prob',agent_action_probs.size())
         opp_actions_probs = self.opp_actor(x)
-        # print('opp',opp_actions_probs)
+        #print('opp',opp_actions_probs.size())
 
 
 
-        actions_probs = torch.matmul(opp_actions_probs,agent_action_probs)
+        actions_probs = torch.matmul(opp_actions_probs,agent_action_probs)[:,0]
+       # print('actions_probs', actions_probs.size())
+       # print('actions_probs',actions_probs)
 
 
         return actions_probs

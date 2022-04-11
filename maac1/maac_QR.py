@@ -138,11 +138,11 @@ class MADAC:
 
             input_critic = self.build_input_critic(i, observations, actions).to(device)
             batch_size = len(observations)
-            Q_target = self.critic_target(input_critic).detach().to(device)
+            Q_target = self.critic_target(input_critic).detach().to(device) #torch.Size([713, 5, 5])
             #print('Q_target is',Q_target)
             print('Q_target_size',Q_target.size())
 
-            action_taken = actions.type(torch.long)[:, i].reshape(-1, 1)
+            action_taken = actions.type(torch.long)[:, i].reshape(-1, 1) #torch.Size([713, 1])
             print('action_taken',action_taken.size())
             print('action_taken.squeeze(1)', action_taken.squeeze(1).size())
 
@@ -170,23 +170,23 @@ class MADAC:
             # train critic
 
             #Q = self.critic(input_critic)
-            Z = self.critic(input_critic)
+            Z = self.critic(input_critic) #Z is torch.Size([857, 5, 5])
             print('Z is',Z.size())
 
             #action_taken = actions.type(torch.long)[:, i].reshape(-1, 1)
-            print('Q_target.mean(2).max(1)[1]',Q_target.mean(2).max(1)[1])
-            Znext_max = Q_target[np.arange(batch_size), Q_target.mean(2).max(1)[1]]
-            print('Znext_max', Znext_max)
-            print('Znext_max_size', Znext_max.size())
+            print('Q_target.mean(2).max(1)[1]',Q_target.mean(2).max(1)[1].size()) #torch.Size([857])
+            Znext_max = Q_target[np.arange(batch_size), Q_target.mean(2).max(1)[1]] #torch.Size([857, 5])
+            print('Znext_max', Znext_max.size())
 
             action_taken = actions.type(torch.long)[:, i].reshape(-1, 1)
             # print('action_taken',action_taken.size())
             theta = Z[np.arange(batch_size), action_taken.squeeze(1)].to(device)
-            print('theta is',theta)
+
             # print('Q_taken',Q_taken.size())
 
             # TD(0)
             r = torch.zeros(len(reward[:, i]), 5).to(device)
+            print('r.size',r.size())
             for t in range(len(reward[:, i])):
                 # print('done',done[i][t])
                 if done[i][t]:
@@ -195,24 +195,24 @@ class MADAC:
                     r[t] = reward[:, i][t].to(device)
                     print('r[t]',r[t])
                 else:
-                    print('!!!!')
-                    print('Znext_max[t + 1]',Znext_max[t + 1])
-                    print('Znext_max[t + 1]_size', Znext_max[t + 1].size())
+                    #print('!!!!')
+                    #print('Znext_max[t + 1]',Znext_max[t + 1])
+                    #print('Znext_max[t + 1]_size', Znext_max[t + 1].size()) #torch.Size([5])
 
                     r[t] = reward[:, i][t].to(device) + self.gamma * Znext_max[t + 1].to(device)
 
 
-            print('theta_size',theta.size())
-            print('r.t111',r)
-            print('r.t111.size',r.size())
+            print('theta_size',theta.size()) #torch.Size([857, 5])
+            #print('r.t111',r)
+            print('r.t111.size',r.size()) #torch.Size([857, 5])
             print('r.t', r.t().unsqueeze(-1))
             print('r.t', r.t().unsqueeze(-1).size())
-            diff = r.t().unsqueeze(-1).to(device) - theta.to(device)
-            print('diff', diff)
+            diff = r.t().unsqueeze(-1).to(device) - theta.to(device) #torch.Size([5, 857, 5])
+
             print('diff_size()',diff.size())
 
-            loss = huber(diff).to(device) * (tau - (diff.detach() < 0).float()).abs().to(device)
-            print('loss1', loss)
+            loss = huber(diff).to(device) * (tau - (diff.detach() < 0).float()).abs().to(device) #torch.Size([5, 857, 5])
+
             print('loss 1.size()',loss.size())
             critic_loss = loss.mean().to(device)
             print('critic_loss',critic_loss)

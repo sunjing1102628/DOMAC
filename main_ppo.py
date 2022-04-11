@@ -39,8 +39,8 @@ if __name__ == "__main__":
 
         agents = PPO(args,seed)
         memory = Memory(args.n_agents, args.action_dim,seed)
-        env = gym.make("PredatorPrey5x5-v0")
-        # env = gym.make("PredatorPrey7x7-v0")
+        #env = gym.make("PredatorPrey5x5-v0")
+        env = gym.make("PredatorPrey7x7-v0")
 
         obs = env.reset()
         #print('obs',obs)
@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
         # training loop
 
-        n_episodes = 15000
+        n_episodes = 10000
         episode = 0
         lr_a1 = 0.01
         log_mean = []
@@ -98,10 +98,10 @@ if __name__ == "__main__":
                     print('type',type(episodes_reward[-100:]))
                     print('episode_std',episode_reward_std)
                     print(f"episode: {episode}, average reward: {sum(episodes_reward[-100:]) / 100}")
-                '''np.savetxt('./results/final_results51_std/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
+                np.savetxt('./results/ppo4v2/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
                            delimiter=";")
-                np.savetxt('./results/final_results51_std/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
-                           delimiter=";")'''
+                np.savetxt('./results/ppo4v2/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
+                           delimiter=";")
                 # np.save('./log/training_log_'
                 #         '{}'  # environment parameter
                 #         '{}.npy'  # training parameter

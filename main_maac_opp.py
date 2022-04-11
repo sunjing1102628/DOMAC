@@ -8,7 +8,7 @@ import gym
 import ma_gym
 import matplotlib.pyplot as plt
 import numpy as np
-from maac1.maac_opp2 import MAAC_OPP
+from maac1.maac1_opp import MAAC_OPP
 from common.replay_buffer import Memory
 import torch
 import random
@@ -37,8 +37,8 @@ if __name__ == "__main__":
 
         agents = MAAC_OPP(args, seed)
         memory = Memory(args.n_agents, args.action_dim, seed)
-        #env = gym.make("PredatorPrey5x5-v0")
-        env = gym.make("PredatorPrey7x7-v0")
+        env = gym.make("PredatorPrey5x5-v0")
+        #env = gym.make("PredatorPrey7x7-v0")
 
         obs = env.reset()
         opp_agents = args.opp_agents

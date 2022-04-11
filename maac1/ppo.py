@@ -145,9 +145,6 @@ class PPO:
 
                 log_pi = torch.log(
                     torch.gather(pi[i].to(device), dim=1, index=action_taken.to(device)).squeeze()).detach()
-
-                # actor_loss = - torch.mean(advantage * log_pi).to(device)
-
                 # train critic
 
                 Q = self.critic(input_critic)

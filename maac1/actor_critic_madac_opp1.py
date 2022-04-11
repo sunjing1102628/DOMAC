@@ -44,9 +44,12 @@ class Actor(nn.Module):
         # print('x is',x)
         # print('len(x)',len(x))
 
-        a = torch.cat([x.repeat(1, 5).reshape(5,len(x)),
+        '''a = torch.cat([x.repeat(1, 5).reshape(5,len(x)),
                        opponent_action_num.to(x.device)],
-                      dim=1)
+                      dim=1)'''
+        a = torch.cat([x.repeat(1, 5).reshape(len(x), 5, 28),
+                       opponent_action_num.repeat(1, len(x)).reshape(len(x), 5, 5).to(x.device)],
+                      dim=2).squeeze(1)
         # print('a is',a)
         a = F.relu(self.fc1(a))
 
@@ -58,7 +61,8 @@ class Actor(nn.Module):
 
 
 
-        actions_probs = torch.matmul(opp_actions_probs,agent_action_probs)
+        #actions_probs = torch.matmul(opp_actions_probs,agent_action_probs)
+        actions_probs = torch.matmul(opp_actions_probs, agent_action_probs)[:, 0]
 
 
         return actions_probs

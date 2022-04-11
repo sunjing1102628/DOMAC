@@ -45,6 +45,7 @@ class Critic(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x= self.fc3(x)
-        #print('x.view',x.view(-1, self.num_actions, self.num_quant))
+       # print('self.num_quant', self.num_quant)
+       # print('x.view',x.view(-1, self.num_actions, self.num_quant).size())
         #print('self.fc3(x)',self.fc3(x))
         return x.view(-1, self.num_actions, self.num_quant)
