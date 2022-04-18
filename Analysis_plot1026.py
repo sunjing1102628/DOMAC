@@ -3,22 +3,22 @@ import numpy as np
 import glob
 import matplotlib.pyplot as plt
 
-directory1 = "./results/final_results72new_2.5e45e4_0.95acc2/"
+directory1 = "./results/ppo2v1/"
 #directory1 = "./results/final_results51new1/"
-directory2 = "./results/final_results74new_2.5e45e4_0.95acc2/"
+directory2 = "./results/oppo2v1/"
 #directory2 = "./results/final_results54new5e51e4/"
-directory3 = "./results/final_results73new_2.5e45e4_0.95ids/"
-directory4 = "./results/final_results72new_2.5e45e4_0.95/"
+directory3 = "./results/dppo2v1/"
+directory4 = "./results/doppo2v1/"
 # directory4 = "./results/final_results54new_3e4_0.95_clip10/"
-directory5 = "./results/final_results71new_2.5e45e4_0.95ids2/"
-directory6 = "./results/final_results74new_2.5e45e4_0.95ids/"
+#directory5 = "./results/final_results71new_2.5e45e4_0.95ids2/"
+#directory6 = "./results/final_results74new_2.5e45e4_0.95ids/"
 
 train_files = glob.glob(directory1 + 'train*.csv')
 test_files = glob.glob(directory2 + 'train*.csv')
 madac_files = glob.glob(directory3 + 'train*.csv')
 madacopp_files = glob.glob(directory4 + 'train*.csv')
-madacopp1_files = glob.glob(directory5 + 'train*.csv')
-madacopp2_files = glob.glob(directory6 + 'train*.csv')
+#madacopp1_files = glob.glob(directory5 + 'train*.csv')
+#madacopp2_files = glob.glob(directory6 + 'train*.csv')
 
 
 #file_results03
@@ -114,7 +114,7 @@ pd_test_var = pd_test_var.rename(columns={'Episode': 'Episode', 'Score': 'VarSco
 x_test = pd_test_mean["Episode"].values
 mean_test = pd_test_mean["MeanScore"].values
 std_test = np.sqrt(pd_test_var["VarScore"].values)
-#file_results06
+'''#file_results06
 pd_madacopp2 = pd.DataFrame(columns = ["Episode", "Score", "Seed"])
 for madacopp2_file in madacopp2_files:
     pd_madacopp2_file = pd.read_csv(madacopp2_file, delimiter=";", names=["Episode", "Score"])
@@ -157,7 +157,7 @@ pd_madacopp1_var = pd_madacopp1_var.rename(columns={'Episode': 'Episode', 'Score
 
 x_madacopp1 = pd_madacopp1_mean["Episode"].values
 mean_madacopp1 = pd_madacopp1_mean["MeanScore"].values
-std_madacopp1 = np.sqrt(pd_madacopp1_var["VarScore"].values)
+std_madacopp1 = np.sqrt(pd_madacopp1_var["VarScore"].values)'''
 
 '''def custom_plot(x, y, z, xlabel, ylabel,title,color, figsize):
     fig, ax = plt.subplots(figsize=figsize)
@@ -173,19 +173,19 @@ custom_plot(x_train, mean_train, std_train, "# Episode", "Score", "Train score a
 '''
 fig, ax = plt.subplots(figsize=(10,5))
 print('x_madac',x_madac)
-#base_line1, = ax.plot(x_train, mean_train, 'tab:blue', label= "maacopp_acc")
-#base_line2, = ax.plot(x_test, mean_test, 'tab:red',label= 'maacoppQR_acc')
+base_line1, = ax.plot(x_train, mean_train, 'tab:blue', label= "maacopp_acc")
+base_line2, = ax.plot(x_test, mean_test, 'tab:red',label= 'maacoppQR_acc')
 base_line3, = ax.plot(x_madac, mean_madac, "olive",label= "maac")
 base_line4, = ax.plot(x_madacopp, mean_madacopp, "purple",label= "maac_opp")
 #base_line5, = ax.plot(x_madacopp1, mean_madacopp1, "green",label= "maac_QR")
-base_line6, = ax.plot(x_madacopp2, mean_madacopp2, "cyan",label= "maac_QRopp")
-#ax.fill_between(x_train, mean_train - std_train/2, mean_train + std_train/2, facecolor=base_line1.get_color(), alpha=0.5)
-#ax.fill_between(x_test, mean_test - std_test/2, mean_test + std_test/2, facecolor=base_line2.get_color(), alpha=0.5)
+#base_line6, = ax.plot(x_madacopp2, mean_madacopp2, "cyan",label= "maac_QRopp")
+ax.fill_between(x_train, mean_train - std_train/2, mean_train + std_train/2, facecolor=base_line1.get_color(), alpha=0.5)
+ax.fill_between(x_test, mean_test - std_test/2, mean_test + std_test/2, facecolor=base_line2.get_color(), alpha=0.5)
 ax.fill_between(x_madac, mean_madac- std_madac/2, mean_madac + std_madac/2, facecolor=base_line3.get_color(), alpha=0.5)
 ax.fill_between(x_madacopp, mean_madacopp- std_madacopp/2, mean_madacopp + std_madacopp/2, facecolor=base_line4.get_color(), alpha=0.5)
 #ax.fill_between(x_madacopp1, mean_madacopp1- std_madacopp1/2, mean_madacopp1 + std_madacopp1/2, facecolor=base_line5.get_color(), alpha=0.5)
-ax.fill_between(x_madacopp2, mean_madacopp2- std_madacopp2/2, mean_madacopp2 + std_madacopp2/2, facecolor=base_line6.get_color(), alpha=0.5)
-plt.title("Train Reward averaged over seeds 7*7".format(len(train_files)))
+#ax.fill_between(x_madacopp2, mean_madacopp2- std_madacopp2/2, mean_madacopp2 + std_madacopp2/2, facecolor=base_line6.get_color(), alpha=0.5)
+plt.title("Train Reward averaged over seeds 5*5".format(len(train_files)))
 #plt.title("Accuarcy of estimated opponent model over 7*7".format(len(train_files)))
 plt.xlabel("# Episode")
 plt.ylabel("Average reward")

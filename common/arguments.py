@@ -10,8 +10,8 @@ def get_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
     # Environment
     parser.add_argument("--scenario-name", type=str, default="simple_tag", help="name of the scenario script")
-    parser.add_argument("--n-agents", type=str, default=4, help="numbers of the agents")
-    parser.add_argument("--opp-agents", type=str, default=2, help="numbers of the agents")
+    parser.add_argument("--n-agents", type=str, default=2, help="numbers of the agents")
+    parser.add_argument("--opp-agents", type=str, default=1, help="numbers of the agents")
     parser.add_argument("--opp-sample-num", type=str, default=10, help="numbers of the agents")
 
     parser.add_argument("--state-dim", type=str, default=28, help="numbers of the state dim")
@@ -41,6 +41,23 @@ def get_args():
     parser.add_argument("--update-interval", type=int, default=10,
                         help="update network once every time this many episodes are completed")
     parser.add_argument("--start_steps", type=int, default=2000,help="start time step")
+    # Checkpointing
+    parser.add_argument("--save-dir7a", type=str, default="./model7",
+                        help="directory in which training state and model should be saved")
+    parser.add_argument("--save-dir7b", type=str, default="./best_model7",
+                        help="directory in which training state and model should be saved")
+    parser.add_argument("--save-dir5a", type=str, default="./model5",
+                        help="directory in which training state and model should be saved")
+    parser.add_argument("--save-dir5b", type=str, default="./best_model5",
+                        help="directory in which training state and model should be saved")
+    parser.add_argument("--algorithm-name1", type=str, default="ppo",
+                        help="name of the algorithm script")
+    parser.add_argument("--algorithm-name2", type=str, default="oppo",
+                        help="name of the algorithm script")
+    parser.add_argument("--algorithm-name3", type=str, default="dppo",
+                        help="name of the algorithm script")
+    parser.add_argument("--algorithm-name4", type=str, default="doppo",
+                        help="name of the algorithm script")
 
     # Evaluate
     parser.add_argument("--evaluate-episodes", type=int, default=10, help="number of episodes for evaluating")

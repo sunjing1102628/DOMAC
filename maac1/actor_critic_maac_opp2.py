@@ -44,15 +44,23 @@ class Actor(nn.Module):
     def forward(self, x):
         actions=[]
         opp_actions_probs=[]
+        acc = []
+        opp_actions_entropy = []
 
         for opp_actor in self.opp_actors:
            #print('!')
             #print('x.size',x.size())
             opp_action_dist = opp_actor(x)
+            opp_action_dist_tets = opp_action_dist.detach()
+            # print('opp_actions_dist', opp_action_dist_tets)
+            prey_move_probs = torch.tensor([0.175, 0.175, 0.175, 0.175, 0.3])
             #print('opp_actions_dist', opp_action_dist.size())
             #print('111', Categorical(opp_action_dist).sample([10]))
             opp_action = Categorical(opp_action_dist).sample([10]).reshape(len(opp_action_dist),10) #torch.Size([5])
-            #print('opp_action',opp_action)
+            opp_action_entropy = Categorical(opp_action_dist).entropy()
+            opp_actions_entropy.append(opp_action_entropy)
+            acc1 = F.kl_div(prey_move_probs.log(), opp_action_dist_tets, None, None, 'sum')
+            acc.append(acc1)
             opp_action_prob=torch.gather(opp_action_dist, dim=-1, index=opp_action)
             #print('opp_action_probs0',opp_action_prob)
             actions.append(opp_action)
@@ -94,7 +102,7 @@ class Actor(nn.Module):
        # print('ac',actions_probs)
 
 
-        return actions_probs
+        return actions_probs, sum(acc)/2, sum(opp_actions_entropy)/2
 
 
 class Critic(nn.Module):

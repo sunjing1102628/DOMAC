@@ -103,12 +103,15 @@ class PPO:
         observations = torch.tensor(observations).to(device)
 
         actions = []
+        dist_entropys = []
+
 
 
         for i in range(self.agent_num):
             dist = self.actors[i](observations[i])
             #print('dist',dist)
             action = Categorical(dist).sample()
+            dist_entropy = Categorical(dist).entropy()
 
             #pi_action = dist[action.item()].item()
             #print('@@@@@',pi_action)
@@ -118,13 +121,13 @@ class PPO:
             self.memory.pi[i].append(dist)
 
             actions.append(action.item())
-            #pi_a.append(pi_action)
+            dist_entropys.append(dist_entropy)
 
         self.memory.observations.append(observations)
         self.memory.actions.append(actions)
         #self.memory.pi_a.append(pi_a)
 
-        return actions
+        return actions,dist_entropys
     def train(self):
         # print('########')
         actor_optimizer = self.actors_optimizer
@@ -232,15 +235,28 @@ class PPO:
 
         return input_critic
 
+    def save_model_best(self):
+        # save actors
+        for agent_id, actor_net in enumerate(self.actors):
+            model_path = os.path.join(self.args.save_dir5b, self.args.algorithm_name1)
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
+            model_path = os.path.join(model_path, 'agent_%d' % agent_id)
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
+            torch.save(actor_net.state_dict(), model_path + '/' + 'actor_params.pkl')
+            # save shared critic
+            torch.save(self.critic.state_dict(), model_path + '/' + 'critic_params.pkl')
 
-    def save_model(self, train_step):
+    def save_model(self, train_step):  # old save fn
         num = str(train_step // self.args.save_rate)
-        model_path = os.path.join(self.args.save_dir, self.args.scenario_name)
-        if not os.path.exists(model_path):
-            os.makedirs(model_path)
-        model_path = os.path.join(model_path, 'agent_%d' % self.agent_id)
-        if not os.path.exists(model_path):
-            os.makedirs(model_path)
-        torch.save(self.actor_network.state_dict(), model_path + '/' + num + '_actor_params.pkl')
-        torch.save(self.critic_network.state_dict(),  model_path + '/' + num + '_critic_params.pkl')
-
+        for agent_id, actor_net in enumerate(self.actors):
+            model_path = os.path.join(self.args.save_dir5a, self.args.algorithm_name1)
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
+            model_path = os.path.join(model_path, 'agent_%d' % agent_id)
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
+            torch.save(actor_net.state_dict(), model_path + '/' + num + 'actor_params.pkl')
+            # save shared critic
+            torch.save(self.critic.state_dict(), model_path + '/' + num + 'critic_params.pkl')

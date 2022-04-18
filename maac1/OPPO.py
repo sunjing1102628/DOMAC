@@ -1,7 +1,8 @@
 import torch
 import os
 #from maac1.actor_critic_categorical import Actor, Critic
-from maac1.actor_critic_maac_opp2 import Actor, Critic
+#from maac1.actor_critic_maac_opp2 import Actor, Critic
+from maac1.actor_critic_maac1_opp import Actor, Critic
 import numpy as np
 import torch.nn as nn
 import random
@@ -100,21 +101,29 @@ class OPPO:
         observations = torch.tensor(observations).to(device)
 
         actions = []
+        acc = []
+        opp_dist_entropys = []
+        dist_entropys = []
 
         for i in range(self.agent_num):
-            dist = self.actors[i](observations[i].unsqueeze(0))
+            dist,acc1,opp_dist_entrophy = self.actors[i](observations[i].unsqueeze(0))
             #print('dist',dist)
+
+            opp_dist_entropys.append(opp_dist_entrophy)
             action = Categorical(dist).sample()
             #print('action is',action)
+            dist_entrophy = Categorical(dist).entropy().squeeze(0)
+            dist_entropys.append(dist_entrophy)
 
             self.memory.pi[i].append(dist)
 
             actions.append(action.item())
+            acc.append(acc1)
 
         self.memory.observations.append(observations)
         self.memory.actions.append(actions)
 
-        return actions
+        return actions,acc,opp_dist_entropys, dist_entropys
     def train(self):
         # print('########')
         actor_optimizer = self.actors_optimizer
@@ -172,7 +181,8 @@ class OPPO:
                 observations1 = torch.cat(observations).view(batch_size, self.agent_num, self.state_dim).to(
                     device)  # torch.Size([647, 56])
                # print('observations[:,i]',observations1[:,i].size())
-                pi_new = self.actors[i](observations1[:, i])
+                pi_new,_,_= self.actors[i](observations1[:, i])
+
 
                 pi_new_a = torch.gather(pi_new.to(device), dim=1, index=action_taken.to(device)).squeeze()
 
@@ -232,15 +242,28 @@ class OPPO:
         input_critic = torch.cat([ids.to(device), input_critic.to(device)], dim=-1)
         return input_critic
 
+    def save_model_best(self):
+        # save actors
+        for agent_id, actor_net in enumerate(self.actors):
+            model_path = os.path.join(self.args.save_dir5b, self.args.algorithm_name2)
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
+            model_path = os.path.join(model_path, 'agent_%d' % agent_id)
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
+            torch.save(actor_net.state_dict(), model_path + '/' + 'actor_params.pkl')
+            # save shared critic
+            torch.save(self.critic.state_dict(), model_path + '/' + 'critic_params.pkl')
 
-    def save_model(self, train_step):
+    def save_model(self, train_step):  # old save fn
         num = str(train_step // self.args.save_rate)
-        model_path = os.path.join(self.args.save_dir, self.args.scenario_name)
-        if not os.path.exists(model_path):
-            os.makedirs(model_path)
-        model_path = os.path.join(model_path, 'agent_%d' % self.agent_id)
-        if not os.path.exists(model_path):
-            os.makedirs(model_path)
-        torch.save(self.actor_network.state_dict(), model_path + '/' + num + '_actor_params.pkl')
-        torch.save(self.critic_network.state_dict(),  model_path + '/' + num + '_critic_params.pkl')
-
+        for agent_id, actor_net in enumerate(self.actors):
+            model_path = os.path.join(self.args.save_dir5a, self.args.algorithm_name2)
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
+            model_path = os.path.join(model_path, 'agent_%d' % agent_id)
+            if not os.path.exists(model_path):
+                os.makedirs(model_path)
+            torch.save(actor_net.state_dict(), model_path + '/' + num + 'actor_params.pkl')
+            # save shared critic
+            torch.save(self.critic.state_dict(), model_path + '/' + num + 'critic_params.pkl')
