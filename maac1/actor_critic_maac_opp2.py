@@ -32,6 +32,7 @@ class Actor(nn.Module):
         super(Actor, self).__init__()
         self.seed = torch.manual_seed(seed)
 
+
         self.fc1 = nn.Linear(state_dim+action_dim*2, 64)
         self.fc2 = nn.Linear(64, 64)
         self.fc3 = nn.Linear(64, action_dim)
@@ -46,6 +47,7 @@ class Actor(nn.Module):
         opp_actions_probs=[]
         acc = []
         opp_actions_entropy = []
+
 
         for opp_actor in self.opp_actors:
            #print('!')
@@ -68,7 +70,7 @@ class Actor(nn.Module):
         #print('opp_action0',opp_actions_probs[0])
         #print('opp_action1',opp_actions_probs[1])
         opp_actions_probs=opp_actions_probs[0]*opp_actions_probs[1]
-        #print('opp_actions_probs',opp_actions_probs)
+
         #actions=torch.cat(actions,dim=0).reshape(2,10).t()
         actions = torch.cat(actions,dim=0).reshape(len(opp_actions_probs),2,10).transpose(1,2)
         opp_actions= torch.nn.functional.one_hot(actions, 5).view(len(opp_actions_probs),10, 10)

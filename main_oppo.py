@@ -61,9 +61,9 @@ if __name__ == "__main__":
 
         agents = OPPO(args,seed)
         memory = Memory(args.n_agents, args.action_dim,seed)
-        env = gym.make("PredatorPrey5x5-v0")
-        #env = gym.make("PredatorPrey7x7-v0")
-        env_eval = gym.make("PredatorPrey5x5-v0")
+        #env = gym.make("PredatorPrey5x5-v0")
+        env = gym.make("PredatorPrey7x7-v0")
+        env_eval = gym.make("PredatorPrey7x7-v0")
 
         obs = env.reset()
         eval_times = 10
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
         # training loop
 
-        n_episodes = 10000
+        n_episodes = 8000
         episode = 0
         log_mean = []
         log_std=[]
@@ -93,12 +93,12 @@ if __name__ == "__main__":
             # print('~~~~~')
             actions, acc, opp_dist_entropy1, dist_entropy1 = agents.get_actions(obs)
             # print('obs0',obs)
-            acc_test.append(sum(acc) / 2)
+            acc_test.append(sum(acc) / 4)
 
 
-            opp_dist_entropy = sum(opp_dist_entropy1) / 2
+            opp_dist_entropy = sum(opp_dist_entropy1) / 4
 
-            dist_entropy = sum(dist_entropy1) / 2
+            dist_entropy = sum(dist_entropy1) / 4
 
 
             episodes_opp_entropy.append(opp_dist_entropy.tolist())
@@ -173,23 +173,23 @@ if __name__ == "__main__":
                         agents.save_model_best()
                         validation_return = current_mean_return
 
-                np.savetxt('./results/oppo2v1_seed3/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
+                np.savetxt('./results/oppo4v2_seed3/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
                            delimiter=";")
-                np.savetxt('./results/oppo2v1_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
+                np.savetxt('./results/oppo4v2_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
                            delimiter=";")
-                np.savetxt('./results/oppo2v1_seed3/train_scoreacc_seed_{}.csv'.format(seed),
+                np.savetxt('./results/oppo4v2_seed3/train_scoreacc_seed_{}.csv'.format(seed),
                            np.array(log_acc_mean), delimiter=";")
-                np.savetxt('./results/oppo2v1_seed3/train_scoreaccstd_seed_{}.csv'.format(seed),
+                np.savetxt('./results/oppo4v2_seed3/train_scoreaccstd_seed_{}.csv'.format(seed),
                            np.array(log_acc_std), delimiter=";")
 
-                np.savetxt('./results/oppo2v1_seed3/train_oppdistentrophy_seed_{}.csv'.format(seed),
+                np.savetxt('./results/oppo4v2_seed3/train_oppdistentrophy_seed_{}.csv'.format(seed),
                            np.array(log_opp_dist_entropy), delimiter=";")
-                np.savetxt('./results/oppo2v1_seed3/train_oppdistentrophystd_seed_{}.csv'.format(seed),
+                np.savetxt('./results/oppo4v2_seed3/train_oppdistentrophystd_seed_{}.csv'.format(seed),
                            np.array(log_opp_dist_entropy_std), delimiter=";")
 
-                np.savetxt('./results/oppo2v1_seed3/train_distentrophy_seed_{}.csv'.format(seed),
+                np.savetxt('./results/oppo4v2_seed3/train_distentrophy_seed_{}.csv'.format(seed),
                            np.array(log_dist_entropy), delimiter=";")
-                np.savetxt('./results/oppo2v1_seed3/train_distentrophystd_seed_{}.csv'.format(seed),
+                np.savetxt('./results/oppo4v2_seed3/train_distentrophystd_seed_{}.csv'.format(seed),
                            np.array(log_dist_entropy_std), delimiter=";")
 
                 # np.save('./log/training_log_'

@@ -60,9 +60,9 @@ if __name__ == "__main__":
 
         agents = PPO(args,seed)
         memory = Memory(args.n_agents, args.action_dim,seed)
-        env = gym.make("PredatorPrey5x5-v0")
-        #env = gym.make("PredatorPrey7x7-v0")
-        env_eval = gym.make("PredatorPrey5x5-v0")
+        #env = gym.make("PredatorPrey5x5-v0")
+        env = gym.make("PredatorPrey7x7-v0")
+        env_eval = gym.make("PredatorPrey7x7-v0")
         eval_times = 10
 
         obs = env.reset()
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
         # training loop
 
-        n_episodes = 10000
+        n_episodes = 8000
         episode = 0
         log_mean = []
         log_std = []
@@ -85,11 +85,11 @@ if __name__ == "__main__":
         while episode < n_episodes:
             # print('~~~~~')
             actions,dist_entropys1 = agents.get_actions(obs)
-            dist_entropy = sum(dist_entropys1) / 2
+            dist_entropy = sum(dist_entropys1) / 4
             # print('obs0',obs)
             # print('action is',actions)
             next_obs, reward, done_n, _ = env.step(actions)
-            print('dist_entropy.tolist()',dist_entropy.tolist())
+            #print('dist_entropy.tolist()',dist_entropy.tolist())
             episodes_entropy.append(dist_entropy.tolist())
 
             agents.memory.reward.append(reward)
@@ -142,14 +142,14 @@ if __name__ == "__main__":
                             current_mean_return, validation_return))
                         agents.save_model_best()
                         validation_return = current_mean_return
-                np.savetxt('./results/ppo2v1_seed3/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
+                np.savetxt('./results/ppo4v2_seed3/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
                            delimiter=";")
-                np.savetxt('./results/ppo2v1_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
+                np.savetxt('./results/ppo4v2_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
                            delimiter=";")
-                np.savetxt('./results/ppo2v1_seed3/train_entropyscore_seed_{}.csv'.format(seed),
+                np.savetxt('./results/ppo4v2_seed3/train_entropyscore_seed_{}.csv'.format(seed),
                            np.array(log_dist_entropy), delimiter=";")
                 np.savetxt(
-                    './results/ppo2v1_seed3/train_entropystd_seed_{}.csv'.format(
+                    './results/ppo4v2_seed3/train_entropystd_seed_{}.csv'.format(
                         seed), np.array(log_dist_entropy_std),
                     delimiter=";")
                 # np.save('./log/training_log_'
