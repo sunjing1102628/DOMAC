@@ -49,7 +49,7 @@ def eval(agents, env):
         done = all(done_n)
         if done:
             return episode_reward
-
+from ptflops import get_model_complexity_info
 if __name__ == "__main__":
     for seed in seeds:
         args = get_args()
@@ -59,6 +59,18 @@ if __name__ == "__main__":
         start = time.time()
 
         agents = DOPPO(args,seed)
+        net1 = agents.actors[0].opp_actors[0]
+        print('net', net1)
+        net2 = agents.critic
+        print('net2',net2)
+        macs, params = get_model_complexity_info(net1, (3, 28, 28), as_strings=True,
+                                                 print_per_layer_stat=True, verbose=True)
+        print('{:<30}  {:<8}'.format('Computational complexity: ', macs))
+        print('{:<30}  {:<8}'.format('Number of parameters: ', params))
+        macs2, params2 = get_model_complexity_info(net2, (3, 133, 133), as_strings=True,
+                                                   print_per_layer_stat=True, verbose=True)
+        print('{:<30}  {:<8}'.format('Computational complexity2: ', macs2))
+        print('{:<30}  {:<8}'.format('Number of parameters2: ', params2))
         memory = Memory(args.n_agents, args.action_dim,seed)
         #env = gym.make("PredatorPrey5x5-v0")
         env = gym.make("PredatorPrey7x7-v0")
@@ -169,7 +181,7 @@ if __name__ == "__main__":
                         agents.save_model_best()
                         validation_return = current_mean_return
 
-                np.savetxt('./results/doppo4v2_seed3/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
+                '''np.savetxt('./results/doppo4v2_seed3/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
                            delimiter=";")
                 np.savetxt('./results/doppo4v2_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
                            delimiter=";")
@@ -186,7 +198,7 @@ if __name__ == "__main__":
                 np.savetxt('./results/doppo4v2_seed3/train_distentrophy_seed_{}.csv'.format(seed),
                            np.array(log_dist_entropy), delimiter=";")
                 np.savetxt('./results/doppo4v2_seed3/train_distentrophystd_seed_{}.csv'.format(seed),
-                           np.array(log_dist_entropy_std), delimiter=";")
+                           np.array(log_dist_entropy_std), delimiter=";")'''
 
                 # np.save('./log/training_log_'
                 #         '{}'  # environment parameter

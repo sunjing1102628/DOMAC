@@ -12,7 +12,7 @@ from maac1.maac1_opp import MAAC_OPP
 from common.replay_buffer import Memory
 import torch
 import random
-
+from ptflops import get_model_complexity_info
 #random.seed(5)
 # print('random_seed',random.random())
 torch.cuda.is_available()
@@ -36,9 +36,23 @@ if __name__ == "__main__":
         start = time.time()
 
         agents = MAAC_OPP(args, seed)
+        net1 = agents.actors[0]
+        print('net', net1)
+        net2 = agents.critic
+        macs, params = get_model_complexity_info(net1, (3, 28, 28), as_strings=True,
+                                                 print_per_layer_stat=True, verbose=True)
+        print('{:<30}  {:<8}'.format('Computational complexity: ', macs))
+        print('{:<30}  {:<8}'.format('Number of parameters: ', params))
+        macs2, params2 = get_model_complexity_info(net2, (3, 67, 67), as_strings=True,
+                                                   print_per_layer_stat=True, verbose=True)
+        print('{:<30}  {:<8}'.format('Computational complexity2: ', macs2))
+        print('{:<30}  {:<8}'.format('Number of parameters2: ', params2))
+
+
         memory = Memory(args.n_agents, args.action_dim, seed)
         env = gym.make("PredatorPrey5x5-v0")
         #env = gym.make("PredatorPrey7x7-v0")
+
 
         obs = env.reset()
         opp_agents = args.opp_agents

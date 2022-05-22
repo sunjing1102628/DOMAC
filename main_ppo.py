@@ -30,7 +30,7 @@ num_seeds = [3]
 seeds = [i for i in num_seeds]
 print('seeds',seeds)
 import time
-
+from ptflops import get_model_complexity_info
 def eval(agents, env):
     done = False
     episode_reward = 0
@@ -59,6 +59,17 @@ if __name__ == "__main__":
         start = time.time()
 
         agents = PPO(args,seed)
+        net1 = agents.actors[0]
+        print('net', net1)
+        net2 = agents.critic
+        macs, params = get_model_complexity_info(net1, (3, 28, 28), as_strings=True,
+                                                 print_per_layer_stat=True, verbose=True)
+        print('{:<30}  {:<8}'.format('Computational complexity: ', macs))
+        print('{:<30}  {:<8}'.format('Number of parameters: ', params))
+        macs2, params2 = get_model_complexity_info(net2, (3, 133, 133), as_strings=True,
+                                                   print_per_layer_stat=True, verbose=True)
+        print('{:<30}  {:<8}'.format('Computational complexity2: ', macs2))
+        print('{:<30}  {:<8}'.format('Number of parameters2: ', params2))
         memory = Memory(args.n_agents, args.action_dim,seed)
         #env = gym.make("PredatorPrey5x5-v0")
         env = gym.make("PredatorPrey7x7-v0")
@@ -142,7 +153,7 @@ if __name__ == "__main__":
                             current_mean_return, validation_return))
                         agents.save_model_best()
                         validation_return = current_mean_return
-                np.savetxt('./results/ppo4v2_seed3/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
+                '''np.savetxt('./results/ppo4v2_seed3/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
                            delimiter=";")
                 np.savetxt('./results/ppo4v2_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
                            delimiter=";")
@@ -151,7 +162,7 @@ if __name__ == "__main__":
                 np.savetxt(
                     './results/ppo4v2_seed3/train_entropystd_seed_{}.csv'.format(
                         seed), np.array(log_dist_entropy_std),
-                    delimiter=";")
+                    delimiter=";")'''
                 # np.save('./log/training_log_'
                 #         '{}'  # environment parameter
                 #         '{}.npy'  # training parameter

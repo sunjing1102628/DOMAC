@@ -11,6 +11,7 @@ random.seed(5)
 #from .distribution import BaseAgent
 import torch.nn.functional as F
 from torch.distributions import Categorical
+from ptflops import get_model_complexity_info
 torch.cuda.is_available()
 if torch.cuda.is_available():
     device = torch.device("cuda:0")  # you can continue going on here, like cuda:1 cuda:2....etc.
@@ -40,6 +41,11 @@ class MAAC:
         self.memory = Memory(args.n_agents, args.action_dim,seed)
 
         self.actors = [Actor(args.state_dim, args.action_dim,seed).to(device) for _ in range(self.agent_num)]
+
+
+
+
+
         # print('self.actors',self.actors)
         self.critic = Critic(args.n_agents,  args.state_dim, args.action_dim,seed).to(device)
         # print('self.critic',self.critic)
