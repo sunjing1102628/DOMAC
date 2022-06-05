@@ -9,20 +9,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class Q_Network(nn.Module):
-
     def __init__(self, obs_size, act_size, args):
         super(Q_Network, self).__init__()
         self.hidden_size = args.q_net_hidden_size
-        act_size =5
-
-
-        #self.mlp_in_layer = nn.Linear(obs_size+act_size, args.q_net_out[0])
-        self.mlp_in_layer = nn.Linear(obs_size, args.q_net_out[0])
-
+        self.mlp_in_layer = nn.Linear(obs_size+act_size, args.q_net_out[0])
         self.mlp_out_layer = nn.Linear(args.q_net_hidden_size, act_size)
-
         self.GRU_layer = nn.GRUCell(args.q_net_out[0], args.q_net_hidden_size)
-
         self.ReLU = nn.ReLU()
 
         self.train()
@@ -36,24 +28,19 @@ class Q_Network(nn.Module):
 
     def forward(self, obs_a_cat, hidden_last):
         #x = self.ReLU(self.mlp_in_layer(obs_a_cat))
-
         x = self.ReLU(self.mlp_in_layer(obs_a_cat))
-
         gru_out = self.GRU_layer(x, hidden_last)
         output = self.mlp_out_layer(gru_out)
-
         return output, gru_out
     
 class Hyper_Network(nn.Module):
     def __init__(self, shape_state, shape_hyper_net, args):
         super(Hyper_Network, self).__init__()
-
         self.hyper_net_pars = shape_hyper_net
-        self.w1_layer = nn.Linear(shape_state*2, shape_hyper_net['w1_size']) #Linear(in_features=28, out_features=64, bias=True)
-
-        self.w2_layer = nn.Linear(shape_state*2, shape_hyper_net['w2_size'])
-        self.b1_layer = nn.Linear(shape_state*2, shape_hyper_net['b1_size'])
-        self.b2_layer_i = nn.Linear(shape_state*2, args.shape_hyper_b2_hidden)
+        self.w1_layer = nn.Linear(shape_state, shape_hyper_net['w1_size'])
+        self.w2_layer = nn.Linear(shape_state, shape_hyper_net['w2_size'])
+        self.b1_layer = nn.Linear(shape_state, shape_hyper_net['b1_size'])
+        self.b2_layer_i = nn.Linear(shape_state, args.shape_hyper_b2_hidden)
         self.b2_layer_h = nn.Linear(args.shape_hyper_b2_hidden, shape_hyper_net['b2_size'])
         self.LReLU = nn.LeakyReLU(0.01)
         self.ReLU = nn.ReLU()
@@ -71,9 +58,7 @@ class Hyper_Network(nn.Module):
     def forward(self, state):
         w1_shape = self.hyper_net_pars['w1_shape']
         w2_shape = self.hyper_net_pars['w2_shape']
-
         w1 = torch.abs(self.w1_layer(state)).view(-1, w1_shape[0], w1_shape[1])
-
         w2 = torch.abs(self.w2_layer(state)).view(-1, w2_shape[0], w2_shape[1])
         b1 = self.b1_layer(state).view(-1, 1, self.hyper_net_pars['b1_shape'][0])
         #x = self.LReLU(self.b2_layer_i(state))
@@ -103,5 +88,4 @@ class Mixing_Network(nn.Module):
     def forward(self, q_values, hyper_pars):
         x = self.ReLU(torch.bmm(q_values, hyper_pars['w1']) + hyper_pars['b1'])
         output = torch.bmm(x, hyper_pars['w2']) + hyper_pars['b2']
-
         return output.view(-1)
