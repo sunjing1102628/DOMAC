@@ -9,13 +9,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class Q_Network(nn.Module):
-    def __init__(self, obs_size, act_size, args):
+    def __init__(self, obs_size, act_size, args,seed):
         super(Q_Network, self).__init__()
+        self.seed = torch.manual_seed(seed)
         self.hidden_size = args.q_net_hidden_size
-        self.mlp_in_layer = nn.Linear(obs_size+act_size, args.q_net_out[0])
+       # self.mlp_in_layer = nn.Linear(obs_size+act_size, args.q_net_out[0])
+        self.mlp_in_layer = nn.Linear(obs_size, args.q_net_out[0])
         self.mlp_out_layer = nn.Linear(args.q_net_hidden_size, act_size)
         self.GRU_layer = nn.GRUCell(args.q_net_out[0], args.q_net_hidden_size)
         self.ReLU = nn.ReLU()
+
 
         self.train()
 
@@ -34,9 +37,10 @@ class Q_Network(nn.Module):
         return output, gru_out
     
 class Hyper_Network(nn.Module):
-    def __init__(self, shape_state, shape_hyper_net, args):
+    def __init__(self, shape_state, shape_hyper_net, args,seed):
         super(Hyper_Network, self).__init__()
         self.hyper_net_pars = shape_hyper_net
+        self.seed = torch.manual_seed(seed)
         self.w1_layer = nn.Linear(shape_state, shape_hyper_net['w1_size'])
         self.w2_layer = nn.Linear(shape_state, shape_hyper_net['w2_size'])
         self.b1_layer = nn.Linear(shape_state, shape_hyper_net['b1_size'])
@@ -67,7 +71,7 @@ class Hyper_Network(nn.Module):
         return {'w1':w1, 'b1':b1, 'w2':w2, 'b2':b2}
         
 class Mixing_Network(nn.Module):
-    def __init__(self, action_size, num_agents, args):
+    def __init__(self, action_size, num_agents, args,seed):
         super(Mixing_Network, self).__init__()
         # action_size * num_agents = the num of Q values
         self.w1_shape = torch.Size((num_agents, args.mix_net_out[0]))
@@ -84,6 +88,7 @@ class Mixing_Network(nn.Module):
                 'b2_shape':self.b2_shape, 'b2_size':self.b2_size, }
         self.LReLU = nn.LeakyReLU(0.001)
         self.ReLU = nn.ReLU()
+        self.seed = torch.manual_seed(seed)
     
     def forward(self, q_values, hyper_pars):
         x = self.ReLU(torch.bmm(q_values, hyper_pars['w1']) + hyper_pars['b1'])

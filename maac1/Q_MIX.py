@@ -16,7 +16,7 @@ from common.replay_buffer_qmix import ReplayBuffer
 from maac1.model_qmix import Q_Network, Mixing_Network, Hyper_Network
 from gym.spaces import flatdim
 class QMIX_Agent():
-    def __init__(self, shape_obs, shape_state, num_agents, num_actions_set, args):
+    def __init__(self, shape_obs, shape_state, num_agents, num_actions_set, args,seed):
         self.epsilon = args.epsilon 
         self.shape_obs = shape_obs
         self.shape_state = shape_state
@@ -27,6 +27,8 @@ class QMIX_Agent():
         self.mse_loss = F.mse_loss
         self.memory = ReplayBuffer(args.memory_size)
         self.learned_cnt = 0
+        self.seed = seed
+        random.seed(seed)
 
 
 
@@ -34,11 +36,11 @@ class QMIX_Agent():
 
     def init_trainers(self, args):
         shape_hyper_net = {}
-        self.mixing_net = Mixing_Network(max(self.num_actions_set), self.num_agents, args).to(args.device)
-        self.q_net_tar = Q_Network(self.shape_obs, max(self.num_actions_set), args).to(args.device)
-        self.q_net_cur = Q_Network(self.shape_obs, max(self.num_actions_set), args).to(args.device)
-        self.hyper_net_tar = Hyper_Network(self.shape_state, self.mixing_net.pars, args).to(args.device)
-        self.hyper_net_cur = Hyper_Network(self.shape_state, self.mixing_net.pars, args).to(args.device)
+        self.mixing_net = Mixing_Network(max(self.num_actions_set), self.num_agents, args, self.seed).to(args.device)
+        self.q_net_tar = Q_Network(self.shape_obs, max(self.num_actions_set), args,self.seed).to(args.device)
+        self.q_net_cur = Q_Network(self.shape_obs, max(self.num_actions_set), args,self.seed).to(args.device)
+        self.hyper_net_tar = Hyper_Network(self.shape_state, self.mixing_net.pars, args,self.seed).to(args.device)
+        self.hyper_net_cur = Hyper_Network(self.shape_state, self.mixing_net.pars, args,self.seed).to(args.device)
         self.hyper_net_tar.load_state_dict(self.hyper_net_cur.state_dict()) # update the tar net par
         self.q_net_tar.load_state_dict(self.q_net_cur.state_dict()) # update the tar net par
         self.optimizer = torch.optim.RMSprop([{'params':self.q_net_cur.parameters()}, 
@@ -46,7 +48,7 @@ class QMIX_Agent():
             ], lr=args.lr)
     
     def enjoy_trainers(self, args):
-        self.mixing_net = Mixing_Network(max(self.num_actions_set), self.num_agents, args).to(args.device)
+        self.mixing_net = Mixing_Network(max(self.num_actions_set), self.num_agents, args,self.seed).to(args.device)
         self.q_net_cur = torch.load(args.old_model_name+'q_net.pkl', map_location=args.device)
         self.hyper_net_cur = torch.load(args.old_model_name+'hyper_net.pkl', map_location=args.device)
 
@@ -57,14 +59,14 @@ class QMIX_Agent():
         self.memory.add((obs_and_u_last[np.newaxis, :], state[np.newaxis, :], u[np.newaxis, :], \
             new_avail_actions[np.newaxis, :], new_obs_and_u[np.newaxis, :], state_new[np.newaxis, :], r, done))
 
-    def select_actions(self, avail_actions, obs, actions_last, hidden_last, args, eval_flag=False):
+    def select_actions(self, avail_actions, obs, hidden_last, args, eval_flag=False):
         """
         Note:epsilon-greedy to choose the action
         """
         action_all = []
         """ step1: get the q_values """
         q_values, hidden = self.q_net_cur(torch.from_numpy( \
-            np.hstack([obs, actions_last])).to(args.device, dtype=torch.float), \
+            np.hstack([obs])).to(args.device, dtype=torch.float), \
             torch.from_numpy(hidden_last).to(args.device, dtype=torch.float))
         
         """ step2: mask the q_values"""
@@ -103,7 +105,8 @@ class QMIX_Agent():
         step_cnt = 0
 
         # cal the q_cur and q_tar
-        q_net_input_size = self.shape_obs + max(self.num_actions_set)
+        #q_net_input_size = self.shape_obs + max(self.num_actions_set)
+        q_net_input_size = self.shape_obs
         hidden_cur = torch.zeros((args.batch_size*self.num_agents, args.q_net_hidden_size), device=args.device)
         hidden_tar = torch.zeros((args.batch_size*self.num_agents, args.q_net_hidden_size), device=args.device)
         for episode_step in range(max_episode_len):
@@ -123,6 +126,7 @@ class QMIX_Agent():
         q_cur = torch.squeeze(q_cur).view(-1, 1, self.num_agents)
         q_tar = torch.stack(q_tar, dim=1)
         q_tar[~new_avail_act_t_b] = float('-inf')
+        print('~new_avail_act_t_b',~new_avail_act_t_b)
         q_tar = torch.max(q_tar, dim=-1)[0].detach().view(-1, 1, self.num_agents)
 
         """step3 cal the qtot_cur and qtot_tar by hyper_network"""

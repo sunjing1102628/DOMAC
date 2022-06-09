@@ -94,7 +94,7 @@ if __name__ == "__main__":
                     # log.append([episode, sum(episodes_reward[-100:]) / 100])
                     #env.render()
                     print(f"episode: {episode}, average reward: {sum(episodes_reward[-100:]) / 100}")
-                np.savetxt('./results/final_results0/train_score_seed_{}.csv'.format(seed), np.array(log),delimiter = ";")
+                np.savetxt('./results/qmix_pp5/train_score_seed_{}.csv'.format(seed), np.array(log),delimiter = ";")
                 # np.save('./log/training_log_'
                 #         '{}'  # environment parameter
                 #         '{}.npy'  # training parameter
