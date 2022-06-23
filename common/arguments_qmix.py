@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument("--n-agents", type=str, default=2, help="numbers of the agents")
     parser.add_argument("--opp-agents", type=str, default=1, help="numbers of the agents")
     parser.add_argument("--opp-sample-num", type=str, default=10, help="numbers of the agents")
-
+    parser.add_argument("--num-quant", type=str, default=5, help="numbers of the quant")
     parser.add_argument("--state-dim", type=str, default=28, help="numbers of the state dim")
     parser.add_argument("--action-dim", type=str, default=5, help="numbers of the action dim")
 
