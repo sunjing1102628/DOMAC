@@ -17,6 +17,7 @@ seed =3
 def train(env, args,seed):
     """ step1: init the env and par """
     env_info = env.get_env_info()
+    print('env_info',env_info)
 
     #num_agents = env_info["n_agents"]
     num_agents = args.n_agents
@@ -24,9 +25,13 @@ def train(env, args,seed):
 
 
     shape_obs = env_info['obs_shape'] + num_agents # add agent_idx bits
+    print('shape_obs',shape_obs)
     shape_state = env_info['state_shape']
+    print('shape_state',shape_state)
     num_actions_set = [env_info["n_actions"]]
+    print('num_actions_set',num_actions_set)
     obs_0_idx = np.eye(num_agents)
+    print('obs_0_idx',obs_0_idx)
 
     """ step2: init the QMIX agent """
     qmix_agent = QMIX_Agent(shape_obs, shape_state, num_agents, num_actions_set, args,seed)
@@ -59,6 +64,7 @@ def train(env, args,seed):
             state = env.get_state()
             obs = np.concatenate([obs_0_idx, np.array(env.get_obs())], axis=1)
             avail_actions = np.array(env.get_avail_actions())
+
             #avail_actions = env.get_avail_actions()
 
             # interact with the env and get new state obs

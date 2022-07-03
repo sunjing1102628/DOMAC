@@ -68,18 +68,24 @@ class QMIX_Agent():
         q_values, hidden = self.q_net_cur(torch.from_numpy( \
             np.hstack([obs])).to(args.device, dtype=torch.float), \
             torch.from_numpy(hidden_last).to(args.device, dtype=torch.float))
-        
+        print('q_values',q_values.size())
         """ step2: mask the q_values"""
         mask = torch.from_numpy(avail_actions).to(args.device) # mask the actions
         q_values[mask==0] = float('-inf')
         
         """ choose action by e-greedy """
+
         avail_act_idxs = [list(np.where(avail_actions[idx]==1)[0]) for idx in range(self.num_agents)]
+
         avail_actions_random = torch.tensor([random.sample(avail_act_idxs[i], 1) \
             for i in range(self.num_agents)], device=args.device) # all random actions
+
         avail_actions_random = avail_actions_random.reshape(-1)
-        max_actions = torch.max(q_values, dim=1)[1] # all max actions 
-        epsilons_choice = torch.rand(max_actions.shape) < self.epsilon # e-greedy choose the idx 
+
+        max_actions = torch.max(q_values, dim=1)[1] # all max actions
+
+        epsilons_choice = torch.rand(max_actions.shape) < self.epsilon # e-greedy choose the idx
+
         max_actions[epsilons_choice] = avail_actions_random[epsilons_choice] if eval_flag == False else \
             max_actions[epsilons_choice]# exchange the data
 
@@ -90,7 +96,9 @@ class QMIX_Agent():
         obs_and_u_last_n, state_n, u_n, new_avail_act_n, \
             obs_new_n, state_new_n, r_n, done_n =  batch_data # obs_n obs_numpy
         obs_and_u_last_t_b = torch.from_numpy(obs_and_u_last_n).to(args.device, dtype=torch.float) # obs_tensor_batch 
-        state_t_b = torch.from_numpy(state_n).to(args.device, dtype=torch.float) 
+        print('obs_and_u_last_t_b',obs_and_u_last_t_b.size())
+        state_t_b = torch.from_numpy(state_n).to(args.device, dtype=torch.float)
+
         u_t_b = torch.from_numpy(u_n).to(args.device, dtype=torch.long)
         new_obs_and_u_t_b = torch.from_numpy(obs_new_n).to(args.device, dtype=torch.float)
         new_avail_act_t_b = torch.from_numpy(new_avail_act_n).to(args.device, dtype=torch.uint8)
@@ -108,12 +116,20 @@ class QMIX_Agent():
         #q_net_input_size = self.shape_obs + max(self.num_actions_set)
         q_net_input_size = self.shape_obs
         hidden_cur = torch.zeros((args.batch_size*self.num_agents, args.q_net_hidden_size), device=args.device)
+        print('hidden_cur',hidden_cur.size())
         hidden_tar = torch.zeros((args.batch_size*self.num_agents, args.q_net_hidden_size), device=args.device)
+        print('hidden_tar',hidden_tar.size())
         for episode_step in range(max_episode_len):
+            print('obs_and_u_last_t_b',obs_and_u_last_t_b.size())
             input1 = torch.index_select(obs_and_u_last_t_b, 1, torch.tensor([episode_step], device=args.device)).reshape(-1, q_net_input_size)
+            print('input1',input1.size())
+            print('new_obs_and_u_t_b',new_obs_and_u_t_b.size())
             input2 = torch.index_select(new_obs_and_u_t_b, 1, torch.tensor([episode_step], device=args.device)).reshape(-1, q_net_input_size)
+            print('input2',input2.size())
             q_values_cur, hidden_cur = self.q_net_cur(input1, hidden_cur)
+            print('q_values_cur',q_values_cur.size())
             q_values_tar, hidden_tar = self.q_net_tar(input2, hidden_tar)
+            print('q_values_tar',q_values_tar.size())
             if episode_step == 0:
                 q_cur = [q_values_cur.view(args.batch_size, self.num_agents, -1)]
                 q_tar = [q_values_tar.view(args.batch_size, self.num_agents, -1)]
@@ -122,9 +138,13 @@ class QMIX_Agent():
                 q_tar.append(q_values_tar.view(args.batch_size, self.num_agents, -1))
 
         q_cur = torch.stack(q_cur, dim=1)
+        print('q_cur111',q_cur.size())
         q_cur = torch.gather(q_cur, -1, torch.transpose(u_t_b, -1, -2))
+        print('q_cur222',q_cur.size())
         q_cur = torch.squeeze(q_cur).view(-1, 1, self.num_agents)
+        print('q_cur333',q_cur.size())
         q_tar = torch.stack(q_tar, dim=1)
+        print('q_tar',q_tar.size())
         q_tar[~new_avail_act_t_b] = float('-inf')
         print('~new_avail_act_t_b',~new_avail_act_t_b)
         q_tar = torch.max(q_tar, dim=-1)[0].detach().view(-1, 1, self.num_agents)

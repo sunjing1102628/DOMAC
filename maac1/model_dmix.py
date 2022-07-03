@@ -248,7 +248,7 @@ class DMixer(nn.Module):
         states = states.reshape(-1, self.state_dim)
         assert states.shape == (batch_size * episode_length, self.state_dim)
         # First layer
-        w1 = th.abs(self.hyper_w_1(states))
+        w1 = torch.abs(self.hyper_w_1(states))
         b1 = self.hyper_b_1(states)
         w1 = w1.view(-1, self.n_agents, self.embed_dim)
         b1 = b1.view(-1, 1, self.embed_dim)
