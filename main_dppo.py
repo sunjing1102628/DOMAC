@@ -28,7 +28,7 @@ else:
 # seeds = [i for i in range(num_seeds)]
 def moving_average(x, N):
     return np.convolve(x, np.ones((N,)) / N, mode='valid')
-num_seeds = [3]
+num_seeds = [4,5,6,8,10,12]
 seeds = [i for i in num_seeds]
 print('seeds',seeds)
 def eval(agents, env):
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
         # training loop
 
-        n_episodes = 8000
+        n_episodes = 12000
         episode = 0
         log_mean = []
         log_std = []
@@ -148,14 +148,14 @@ if __name__ == "__main__":
                         agents.save_model_best()
                         validation_return = current_mean_return
 
-                np.savetxt('./results/dppo4v2_seed3/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
+                np.savetxt('./results/dppo4v2/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
                            delimiter=";")
-                np.savetxt('./results/dppo4v2_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
+                '''np.savetxt('./results/dppo4v2_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
                            delimiter=";")
                 np.savetxt('./results/dppo4v2_seed3/train_entropyscore_seed_{}.csv'.format(seed),
                            np.array(log_dist_entropy), delimiter=";")
                 np.savetxt('./results/dppo4v2_seed3/train_entropystd_seed_{}.csv'.format(
-                    seed), np.array(log_dist_entropy_std), delimiter=";")
+                    seed), np.array(log_dist_entropy_std), delimiter=";")'''
 
                 # np.save('./log/training_log_'
                 #         '{}'  # environment parameter

@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
         # training loop
 
-        n_episodes = 8000
+        n_episodes = 12000
         episode = 0
         log_mean = []
         log_std=[]
@@ -173,9 +173,9 @@ if __name__ == "__main__":
                         agents.save_model_best()
                         validation_return = current_mean_return
 
-                np.savetxt('./results/oppo4v2_seed3/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
+                np.savetxt('./results/oppo4v2/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
                            delimiter=";")
-                np.savetxt('./results/oppo4v2_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
+                '''np.savetxt('./results/oppo4v2_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
                            delimiter=";")
                 np.savetxt('./results/oppo4v2_seed3/train_scoreacc_seed_{}.csv'.format(seed),
                            np.array(log_acc_mean), delimiter=";")
@@ -190,7 +190,7 @@ if __name__ == "__main__":
                 np.savetxt('./results/oppo4v2_seed3/train_distentrophy_seed_{}.csv'.format(seed),
                            np.array(log_dist_entropy), delimiter=";")
                 np.savetxt('./results/oppo4v2_seed3/train_distentrophystd_seed_{}.csv'.format(seed),
-                           np.array(log_dist_entropy_std), delimiter=";")
+                           np.array(log_dist_entropy_std), delimiter=";")'''
 
                 # np.save('./log/training_log_'
                 #         '{}'  # environment parameter

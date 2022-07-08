@@ -27,7 +27,7 @@ else:
 # seeds = [i for i in range(num_seeds)]
 def moving_average(x, N):
     return np.convolve(x, np.ones((N,)) / N, mode='valid')
-num_seeds = [3]
+num_seeds = [4,5,6,8,10,12]
 seeds = [i for i in num_seeds]
 print('seeds',seeds)
 import time
@@ -59,7 +59,7 @@ if __name__ == "__main__":
         start = time.time()
 
         agents = DOPPO(args,seed)
-        net1 = agents.actors[0].opp_actors[0]
+        '''net1 = agents.actors[0].opp_actors[0]
         print('net', net1)
         net2 = agents.critic
         print('net2',net2)
@@ -70,7 +70,7 @@ if __name__ == "__main__":
         macs2, params2 = get_model_complexity_info(net2, (3, 133, 133), as_strings=True,
                                                    print_per_layer_stat=True, verbose=True)
         print('{:<30}  {:<8}'.format('Computational complexity2: ', macs2))
-        print('{:<30}  {:<8}'.format('Number of parameters2: ', params2))
+        print('{:<30}  {:<8}'.format('Number of parameters2: ', params2))'''
         memory = Memory(args.n_agents, args.action_dim,seed)
         #env = gym.make("PredatorPrey5x5-v0")
         env = gym.make("PredatorPrey7x7-v0")
@@ -181,9 +181,9 @@ if __name__ == "__main__":
                         agents.save_model_best()
                         validation_return = current_mean_return
 
-                '''np.savetxt('./results/doppo4v2_seed3/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
+                np.savetxt('./results/doppo4v2_seed3/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
                            delimiter=";")
-                np.savetxt('./results/doppo4v2_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
+                '''np.savetxt('./results/doppo4v2_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
                            delimiter=";")
                 np.savetxt('./results/doppo4v2_seed3/train_scoreacc_seed_{}.csv'.format(seed),
                            np.array(log_acc_mean), delimiter=";")
