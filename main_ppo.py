@@ -71,9 +71,9 @@ if __name__ == "__main__":
         print('{:<30}  {:<8}'.format('Computational complexity2: ', macs2))
         print('{:<30}  {:<8}'.format('Number of parameters2: ', params2))
         memory = Memory(args.n_agents, args.action_dim,seed)'''
-        #env = gym.make("PredatorPrey5x5-v0")
-        env = gym.make("PredatorPrey7x7-v0")
-        env_eval = gym.make("PredatorPrey7x7-v0")
+
+        env = gym.make("PredatorPrey5x5-v0")
+        env_eval = gym.make("PredatorPrey5x5-v0")
         eval_times = 10
 
         obs = env.reset()
@@ -153,7 +153,7 @@ if __name__ == "__main__":
                             current_mean_return, validation_return))
                         agents.save_model_best()
                         validation_return = current_mean_return
-                np.savetxt('./results/ppo4v2/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
+                np.savetxt('./results/ppo2v1/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
                            delimiter=";")
                 '''np.savetxt('./results/ppo4v2_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
                            delimiter=";")

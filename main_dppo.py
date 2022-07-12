@@ -60,8 +60,8 @@ if __name__ == "__main__":
 
         agents = DPPO(args,seed)
         memory = Memory(args.n_agents, args.action_dim,seed)
-        env = gym.make("PredatorPrey7x7-v0")
-        env_eval = gym.make("PredatorPrey7x7-v0")
+        env = gym.make("PredatorPrey5x5-v0")
+        env_eval = gym.make("PredatorPrey5x5-v0")
         eval_times = 10
         #env = gym.make("PredatorPrey7x7-v0")
 

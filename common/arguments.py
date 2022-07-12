@@ -10,8 +10,8 @@ def get_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
     # Environment
     parser.add_argument("--scenario-name", type=str, default="simple_tag", help="name of the scenario script")
-    parser.add_argument("--n-agents", type=str, default=4, help="numbers of the agents")
-    parser.add_argument("--opp-agents", type=str, default=2, help="numbers of the agents")
+    parser.add_argument("--n-agents", type=str, default=2, help="numbers of the agents")
+    parser.add_argument("--opp-agents", type=str, default=1, help="numbers of the agents")
     parser.add_argument("--opp-sample-num", type=str, default=10, help="numbers of the agents")
 
     parser.add_argument("--state-dim", type=str, default=28, help="numbers of the state dim")

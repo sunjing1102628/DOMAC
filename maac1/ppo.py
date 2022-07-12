@@ -238,7 +238,7 @@ class PPO:
     def save_model_best(self):
         # save actors
         for agent_id, actor_net in enumerate(self.actors):
-            model_path = os.path.join(self.args.save_dir7b, self.args.algorithm_name1)
+            model_path = os.path.join(self.args.save_dir5b, self.args.algorithm_name1)
             if not os.path.exists(model_path):
                 os.makedirs(model_path)
             model_path = os.path.join(model_path, 'agent_%d' % agent_id)
@@ -251,7 +251,7 @@ class PPO:
     def save_model(self, train_step):  # old save fn
         num = str(train_step // self.args.save_rate)
         for agent_id, actor_net in enumerate(self.actors):
-            model_path = os.path.join(self.args.save_dir7a, self.args.algorithm_name1)
+            model_path = os.path.join(self.args.save_dir5a, self.args.algorithm_name1)
             if not os.path.exists(model_path):
                 os.makedirs(model_path)
             model_path = os.path.join(model_path, 'agent_%d' % agent_id)

@@ -1,7 +1,7 @@
 import torch
 import os
 #from maac1.actor_critic_categorical import Actor, Critic
-from maac1.actor_critic_madac_opp2 import Actor, Critic
+from maac1.actor_critic_madac_opp1 import Actor, Critic
 import numpy as np
 import torch.nn as nn
 import random
@@ -44,7 +44,7 @@ class DOPPO:
 
         self.memory = Memory(args.n_agents, args.action_dim,seed)
 
-        self.actors = [Actor(args.state_dim, args.action_dim,args.opp_agents,seed).to(device) for _ in range(self.agent_num)]
+        self.actors = [Actor(args.state_dim, args.action_dim,seed).to(device) for _ in range(self.agent_num)]
         # print('self.actors',self.actors)
         # print('args.num_quant',args.num_quant)
         self.critic = Critic(args.n_agents, args.state_dim, args.action_dim, args.num_quant, seed).to(device)
@@ -261,7 +261,7 @@ class DOPPO:
     def save_model_best(self):
         # save actors
         for agent_id, actor_net in enumerate(self.actors):
-            model_path = os.path.join(self.args.save_dir7b, self.args.algorithm_name4)
+            model_path = os.path.join(self.args.save_dir5b, self.args.algorithm_name4)
             if not os.path.exists(model_path):
                 os.makedirs(model_path)
             model_path = os.path.join(model_path, 'agent_%d' % agent_id)
@@ -274,7 +274,7 @@ class DOPPO:
     def save_model(self, train_step):  # old save fn
         num = str(train_step // self.args.save_rate)
         for agent_id, actor_net in enumerate(self.actors):
-            model_path = os.path.join(self.args.save_dir7a, self.args.algorithm_name4)
+            model_path = os.path.join(self.args.save_dir5a, self.args.algorithm_name4)
             if not os.path.exists(model_path):
                 os.makedirs(model_path)
             model_path = os.path.join(model_path, 'agent_%d' % agent_id)
