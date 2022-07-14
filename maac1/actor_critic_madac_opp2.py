@@ -48,9 +48,12 @@ class Actor(nn.Module):
         opp_actions_entropy = []
 
         for opp_actor in self.opp_actors:
+
            #print('!')
             #print('x.size',x.size())
             opp_action_dist = opp_actor(x)
+
+            #pp_action_dist = torch.tensor([[0.175, 0.175, 0.175, 0.175, 0.3]])
             opp_action_dist_tets = opp_action_dist.detach()
             # print('opp_actions_dist', opp_action_dist_tets)
             prey_move_probs = torch.tensor([0.175, 0.175, 0.175, 0.175, 0.3])

@@ -1,7 +1,7 @@
 import torch
 import os
 #from maac1.actor_critic_categorical import Actor, Critic
-from maac1.actor_critic_madac_opp1 import Actor, Critic
+from maac1.actor_critic_madac_opp2 import Actor, Critic
 import numpy as np
 import torch.nn as nn
 import random
@@ -115,6 +115,7 @@ class DOPPO:
             # print('action is',action)
             dist_entrophy = Categorical(dist).entropy().squeeze(0)
             dist_entropys.append(dist_entrophy)
+
 
             self.memory.pi[i].append(dist)
 

@@ -56,15 +56,17 @@ class Actor(nn.Module):
         a = F.relu(self.fc2(a))
         agent_action_probs= F.softmax(self.fc3(a), dim=-1)
         # print('agent_action_prob',agent_action_probs)
-        opp_actions_probs = self.opp_actor(x)
+        #opp_actions_probs = self.opp_actor(x)
+        opp_actions_probs = torch.tensor([0.175, 0.175, 0.175, 0.175, 0.3])
         # print('opp',opp_actions_probs)
         opp_action_entropy = Categorical(opp_actions_probs).entropy().squeeze(0)
         opp_action_dist_tets = opp_actions_probs.detach()
         prey_move_probs = torch.tensor([0.175, 0.175, 0.175, 0.175, 0.3])
         acc = F.kl_div(opp_action_dist_tets.log(), prey_move_probs, None, None, 'sum')
 
-        #actions_probs = torch.matmul(opp_actions_probs,agent_action_probs)
-        actions_probs = torch.matmul(opp_actions_probs, agent_action_probs)[:, 0]
+        actions_probs = torch.matmul(opp_actions_probs,agent_action_probs)
+        #actions_probs = torch.matmul(opp_actions_probs, agent_action_probs)[:, 0]
+        #print('actions_probs',actions_probs.size())
 
 
         return actions_probs,acc,opp_action_entropy

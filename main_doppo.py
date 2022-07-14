@@ -27,7 +27,7 @@ else:
 # seeds = [i for i in range(num_seeds)]
 def moving_average(x, N):
     return np.convolve(x, np.ones((N,)) / N, mode='valid')
-num_seeds = [4,5,6,8,10,12]
+num_seeds = [2,3,6,8,10,12]
 seeds = [i for i in num_seeds]
 print('seeds',seeds)
 import time
@@ -73,8 +73,8 @@ if __name__ == "__main__":
         print('{:<30}  {:<8}'.format('Number of parameters2: ', params2))'''
         memory = Memory(args.n_agents, args.action_dim,seed)
 
-        env = gym.make("PredatorPrey5x5-v0")
-        env_eval = gym.make("PredatorPrey5x5-v0")
+        env = gym.make("PredatorPrey7x7-v0")
+        env_eval = gym.make("PredatorPrey7x7-v0")
 
         obs = env.reset()
         #print('obs',obs)
@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
         # training loop
 
-        n_episodes = 8000
+        n_episodes = 10000
         episode = 0
         log_mean = []
         log_std = []
@@ -144,12 +144,12 @@ if __name__ == "__main__":
 
                 if episode % 100 == 0:
                     log_mean.append([episode, sum(episodes_reward[-100:]) / 100])
-                    print('episodes_reward[-100:]',episodes_reward[-100:])
+                    #print('episodes_reward[-100:]',episodes_reward[-100:])
                     episode_reward_std= np.array(episodes_reward[-100:]).std()
                     log_std.append([episode, episode_reward_std])
-                    print('type',type(episodes_reward[-100:]))
-                    print('episode_std',episode_reward_std)
-                    print(f"episode: {episode}, average reward: {sum(episodes_reward[-100:]) / 100}")
+                    #print('type',type(episodes_reward[-100:]))
+                    #print('episode_std',episode_reward_std)
+                    #print(f"episode: {episode}, average reward: {sum(episodes_reward[-100:]) / 100}")
                     # log acc mean and std
                     acc_std = np.array(acc_test[-100:]).std()
                     log_acc_mean.append([episode, sum(acc_test[-100:]) / 100])
@@ -181,7 +181,7 @@ if __name__ == "__main__":
                         agents.save_model_best()
                         validation_return = current_mean_return
 
-                np.savetxt('./results/doppo2v1/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
+                np.savetxt('./results/doppo4v2_UB/train_score_seed_{}.csv'.format(seed), np.array(log_mean),
                            delimiter=";")
                 '''np.savetxt('./results/doppo4v2_seed3/train_score_std_seed_{}.csv'.format(seed), np.array(log_std),
                            delimiter=";")
