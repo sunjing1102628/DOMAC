@@ -107,22 +107,25 @@ class MADAC_OPP:
     def get_actions(self, observations):
         observations = torch.tensor(observations).to(device)
 
+
         actions = []
+        accs=[]
 
         for i in range(self.agent_num):
-            dist = self.actors[i](observations[i])
-            # print('dist',dist)
+            dist,acc,opp_actions_entropy = self.actors[i](observations[i])
+
             action = Categorical(dist).sample()
             # print('action is',action)
 
             self.memory.pi[i].append(dist)
 
             actions.append(action.item())
+            accs.append(acc)
 
         self.memory.observations.append(observations)
         self.memory.actions.append(actions)
 
-        return actions
+        return actions,accs
     def train(self):
         # print('########')
         actor_optimizer = self.actors_optimizer
@@ -131,6 +134,7 @@ class MADAC_OPP:
         actions, observations, pi, reward, done = self.memory.get()
         tau = torch.Tensor((2 * np.arange(self.critic.num_quant) + 1) / (2.0 * self.critic.num_quant)).view(1, -1)
         #print('tau', tau)
+
         # print('obs_train',observations)
         # print('actions_memory',actions)
         # print('pi is',pi)

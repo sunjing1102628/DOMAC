@@ -26,7 +26,7 @@ def moving_average(x, N):
     return np.convolve(x, np.ones((N,)) / N, mode='valid')
 # num_seeds = 6
 # seeds = [i for i in range(num_seeds)]
-num_seeds = [2,3,4]
+num_seeds = [2,3,4,5,6,8,10,12]
 seeds = [i for i in num_seeds]
 print('seeds',seeds)
 import time
@@ -57,13 +57,15 @@ if __name__ == "__main__":
 
         n_episodes = 15000
         episode = 0
+        acc_test = []
         log = []
+        log_acc_mean = []
 
         while episode < n_episodes:
             # print('~~~~~')
-            actions = agents.get_actions(obs)
+            actions,acc = agents.get_actions(obs)
             # print('obs0',obs)
-            # print('action is',actions)
+            acc_test.append(sum(acc) / 4)
             next_obs, reward, done_n, _ = env.step(actions)
 
             agents.memory.reward.append(reward)
@@ -95,11 +97,14 @@ if __name__ == "__main__":
 
                 if episode % 100 == 0:
                     log.append([episode, sum(episodes_reward[-100:]) / 100])
-                    print('episodes_reward[-100:]',episodes_reward[-100:])
-                    print('type',type(episodes_reward[-100:]))
+                    # log acc mean and std
+                    acc_std = np.array(acc_test[-100:]).std()
+                    log_acc_mean.append([episode, sum(acc_test[-100:]) / 100])
                     print(f"episode: {episode}, average reward: {sum(episodes_reward[-100:]) / 100}")
-                '''np.savetxt('./results/final_results54new_1e2_0.95/train_score_seed_{}.csv'.format(seed), np.array(log),
-                           delimiter=";")'''
+                np.savetxt('./results/DOMAC_PP7_maskobs/train_score_seed_{}.csv'.format(seed), np.array(log),
+                           delimiter=";")
+                np.savetxt('./results/DOMAC_PP7_maskobs/train_scoreacc_seed_{}.csv'.format(seed), np.array(log_acc_mean),
+                           delimiter=";")
 
                 # np.save('./log/training_log_'
                 #     '{}'  # environment parameter

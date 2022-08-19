@@ -50,21 +50,23 @@ class Actor(nn.Module):
         for opp_actor in self.opp_actors:
 
            #print('!')
-            #print('x.size',x.size())
+
             opp_action_dist = opp_actor(x)
 
             #pp_action_dist = torch.tensor([[0.175, 0.175, 0.175, 0.175, 0.3]])
             opp_action_dist_tets = opp_action_dist.detach()
             # print('opp_actions_dist', opp_action_dist_tets)
-            prey_move_probs = torch.tensor([0.175, 0.175, 0.175, 0.175, 0.3])
+            #prey_move_probs = torch.tensor([0.175, 0.175, 0.175, 0.175, 0.3])
             #print('opp_actions_dist', opp_action_dist.size())
             #print('111', Categorical(opp_action_dist).sample([10]))
-            opp_action = Categorical(opp_action_dist).sample([10]).reshape(len(opp_action_dist),10) #torch.Size([5])
+
+            #opp_action = Categorical(opp_action_dist).sample([10]).reshape(len(opp_action_dist),10) #torch.Size([5])
+            opp_action = Categorical(opp_action_dist).sample([10])
             #print('opp_action',opp_action)
             opp_action_entropy = Categorical(opp_action_dist).entropy()
             opp_actions_entropy.append(opp_action_entropy)
-            acc1 = F.kl_div(prey_move_probs.log(), opp_action_dist_tets, None, None, 'sum')
-            acc.append(acc1)
+            #acc1 = F.kl_div(prey_move_probs.log(), opp_action_dist_tets, None, None, 'sum')
+            #acc.append(acc1)
             opp_action_prob=torch.gather(opp_action_dist, dim=-1, index=opp_action)
             #print('opp_action_probs0',opp_action_prob)
             actions.append(opp_action)
@@ -74,11 +76,10 @@ class Actor(nn.Module):
         opp_actions_probs=opp_actions_probs[0]*opp_actions_probs[1]
         #print('opp_actions_probs',opp_actions_probs)
         #print('actions',actions)
-        #actions=torch.cat(actions,dim=0).reshape(2,10).t()
-       # print('actions2',actions)
-        #opp_actions= torch.nn.functional.one_hot(actions, 5).view(10, 10)
-        actions = torch.cat(actions, dim=0).reshape(len(opp_actions_probs), 2, 10).transpose(1, 2)
-        opp_actions = torch.nn.functional.one_hot(actions, 5).view(len(opp_actions_probs), 10, 10)
+        actions=torch.cat(actions,dim=0).reshape(2,10)
+        opp_actions= torch.nn.functional.one_hot(actions, 5).view(10, 10)
+        #actions = torch.cat(actions, dim=0).reshape(len(opp_actions_probs), 2, 10).transpose(1, 2)
+        #opp_actions = torch.nn.functional.one_hot(actions, 5).view(len(opp_actions_probs), 10, 10)
         #print('opp_actions',opp_actions)
 
 
@@ -89,12 +90,12 @@ class Actor(nn.Module):
         # print('opponent_action_num',opponent_action_num)
         # print('x is',x)
         #print('len(x)',x.repeat(1, 10).reshape(10,len(x)))
-        '''a = torch.cat([x.repeat(1, 10).reshape(10,len(x)),
+        a = torch.cat([x.repeat(1, 10).reshape(10,len(x)),
                        opp_actions.to(x.device)],
-                      dim=1)'''
-        a = torch.cat([x.repeat(1, 10).reshape(len(x), 10, 28),
+                      dim=1)
+        '''a = torch.cat([x.repeat(1, 10).reshape(len(x), 10, 28),
                        opp_actions.to(x.device)],
-                      dim=2).squeeze(1)
+                      dim=2).squeeze(1)'''
         #print('a is',a)
         a = F.relu(self.fc1(a))
 
@@ -106,7 +107,7 @@ class Actor(nn.Module):
 
 
 
-        actions_probs = torch.matmul(opp_actions_probs,agent_action_probs)[:,0]
+        actions_probs = torch.matmul(opp_actions_probs,agent_action_probs)
        # print('ac',actions_probs)
 
 
