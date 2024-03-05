@@ -44,6 +44,6 @@ python3 main_domac.py
 
 Policy:
 
-![Policy](doc/policy.gif)
+![Policy](doc/DOMAC.png)
 
 
