@@ -1,11 +1,11 @@
-# Pytorch implementation of Decision-making with Imaginary Opponent Models
+# Pytorch implementation of Decision-making with Speculative Opponent Models
 
 Paper:  https://arxiv.org/abs/2211.11940
 
 
 This repository is the official PyTorch implementation of the algorithms in the following paper:
 
-Jing Sun, Shuo Chen, Cong Zhang, Jie Zhang. Decision-making with Imaginary Opponent Models. Sun, Jing, Cong Zhang, and Jie Zhang. "Decision-making with Imaginary Opponent Models." arXiv preprint arXiv:2211.11940 (2022).
+Jing Sun, Shuo Chen, Cong Zhang, Jie Zhang. Decision-making with Speculative Opponent Models. Sun, Jing, Cong Zhang, and Jie Zhang. "Decision-making with Speculative Opponent Models." arXiv preprint arXiv:2211.11940 (2022).
 
 
 
