@@ -1,6 +1,6 @@
-# Pytorch implementation of Counterfactual Multi Agent Policy Gradients
+# Pytorch implementation of Decision-making with Imaginary Opponent Models
 
-Paper: Decision-making with Imaginary Opponent Models https://arxiv.org/abs/2211.11940
+Paper:  https://arxiv.org/abs/2211.11940
 
 
 This repository is the official PyTorch implementation of the algorithms in the following paper:
