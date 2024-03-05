@@ -1,6 +1,6 @@
 # Pytorch implementation of Counterfactual Multi Agent Policy Gradients
 
-Paper: https://arxiv.org/abs/1705.08926
+Paper: https://arxiv.org/abs/2211.11940
 
 ## Environment
 

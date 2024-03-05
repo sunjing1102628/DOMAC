@@ -83,7 +83,7 @@ if __name__ == "__main__":
             # print('done',done_n)
 
             obs = next_obs
-            # print('next_obs',obs)
+            print('next_obs##################',obs)
 
             if all(done_n):
                 # if episode % 10 == 0:
